@@ -106,7 +106,6 @@ class MurugoChannel
         if ($payload == []) return ;
 
         MurugoNotification::email()
-            ->onQueue('email')
             ->setHeader($payload['header'] ?? null)
             ->setEmailAddress($user->email)
             ->setSubject($payload['subject'])

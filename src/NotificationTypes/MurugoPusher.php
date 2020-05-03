@@ -38,7 +38,7 @@ trait MurugoPusher
     {
         $this->channelName = $channelName;
 
-        $this->channelType = PUBLIC_CHANNEL;
+        $this->channelType = 'public';
 
         return $this;
     }
