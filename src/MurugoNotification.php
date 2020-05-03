@@ -26,7 +26,7 @@ class MurugoNotification
      * 
      * @var String
      */
-    protected $type = null;
+    public $type = null;
 
     /**
      * guzzle client
@@ -73,11 +73,16 @@ class MurugoNotification
     /**
      * Set the notification type
      */
-    public function __construct(String $type)
+    public function __construct()
+    {
+        $this->httpClient = new Client();
+    }
+
+    public function setType($type)
     {
         $this->type = $type;
 
-        $this->httpClient = new Client();
+        return $this;
     }
 
     /**
@@ -85,7 +90,8 @@ class MurugoNotification
      */
     public static function pusher()
     {
-        return new MurugoNotification(self::PUSHER);
+        return (new MurugoNotification())
+                    ->setType(self::PUSHER);
     }
 
     /**
@@ -93,7 +99,8 @@ class MurugoNotification
      */
     public static function sms()
     {
-        return new MurugoNotification(self::SMS);
+        return (new MurugoNotification())
+                    ->setType(self::SMS);
     }
 
     /**
@@ -101,7 +108,8 @@ class MurugoNotification
      */
     public static function email()
     {
-        return new MurugoNotification(self::EMAIL);
+        return (new MurugoNotification())
+                    ->setType(self::EMAIL);
     }
 
     /**

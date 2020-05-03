@@ -1,6 +1,6 @@
 {
     "name": "promessekayenga/mutify",
-    "description": "A package for sending sms,email and pusher notification",
+    "description": "A package for sending email and sms using murugo notification service",
     "authors": [
         {
             "name": "Promesse kayenga",
@@ -17,7 +17,10 @@
         "laravel": {
             "providers": [
                 "RWBuild\\Mutify\\MutifyServiceProvider"
-            ]
+            ],
+            "aliases": {
+                "Mutify": "RWBuild\\Mutify\\Facades\\Mutify"
+            }
         }
     }
 }

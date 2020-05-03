@@ -1,6 +1,7 @@
 <?php
 namespace RWBuild\Mutify;
 
+use RWBuild\Mutify\MurugoNotification;
 use Illuminate\Support\ServiceProvider;
 
 class MutifyServiceProvider extends ServiceProvider
@@ -8,7 +9,7 @@ class MutifyServiceProvider extends ServiceProvider
    
     public function register()
     {
-        
+        $this->app->bind('Mutify', MurugoNotification::class);
     }
 
     
