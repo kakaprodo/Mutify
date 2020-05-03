@@ -1,0 +1,23 @@
+{
+    "name": "promessekayenga/mutify",
+    "description": "A package for sending sms,email and pusher notification",
+    "authors": [
+        {
+            "name": "Promesse kayenga",
+            "email": "promskakaprodo45@gmail.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "RWBuild\\Mutify\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "RWBuild\\Mutify\\MutifyServiceProvider"
+            ]
+        }
+    }
+}
