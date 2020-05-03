@@ -3,40 +3,40 @@
 use RWBuild\Mutify\MurugoNotification;
 use RWBuild\Mutify\Channels\MurugoChannel;
 
-if (! function_exists('murugoEmail')) {
+if (! function_exists('mutifyEmail')) {
     /**
      * Prepare murugo email notification object
      */
-    function murugoEmail() {
+    function mutifyEmail() {
         return MurugoNotification::email();
     }
 }
 
 
-if (! function_exists('murugoSms')) {
+if (! function_exists('mutifySms')) {
     /**
      * Prepare murugo sms notification object
      */
-    function murugoSms() {
+    function mutifySms() {
         return MurugoNotification::sms();
     }
 }
 
 
-if (! function_exists('murugoPusher')) {
+if (! function_exists('mutifyPusher')) {
     /**
      * Prepare murugo sms notification object
      */
-    function murugoPusher() {
+    function mutifyPusher() {
         return MurugoNotification::pusher();
     }
 }
 
-if (! function_exists('murugoChannel')) {
+if (! function_exists('mutifyChannel')) {
     /**
      * define a channel for laravel notifications
      */
-    function murugoChannel() {
+    function mutifyChannel() {
         return MurugoChannel::class;
     }
 }
