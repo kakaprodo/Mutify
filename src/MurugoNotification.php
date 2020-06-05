@@ -76,6 +76,11 @@ class MurugoNotification
     protected $throwable = false;
 
     /**
+     * The response for guzzle request
+     */
+    protected $response = null;
+
+    /**
      * murugo notification types
      */
     const EMAIL = 'email';
@@ -188,6 +193,14 @@ class MurugoNotification
     }
 
     /**
+     * get the response of the guzzle request
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
+
+    /**
      * return the message of request depending on request status
      */
     public function getMessage()
@@ -218,7 +231,7 @@ class MurugoNotification
      */
     private function sendDirectly($url, $requestData)
     {
-        $this->caller('sendRequest', $url, $requestData);
+        $this->response = $this->caller('sendRequest', $url, $requestData);
 
         return $this;
     }
