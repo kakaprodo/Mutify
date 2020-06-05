@@ -7,6 +7,8 @@ use RWBuild\Mutify\NotificationTypes\MurugoSms;
 use RWBuild\Mutify\NotificationTypes\MurugoEmail;
 use RWBuild\Mutify\NotificationTypes\MurugoPusher;
 use RWBuild\Mutify\Jobs\SendMurugoNoficiationAfter;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ConnectException;
 
 class MurugoNotification
 {
@@ -57,6 +59,26 @@ class MurugoNotification
      * Periode of time in second af
      */
     protected $sendAt = 0;
+
+    /**
+     * define weither a request was successfully done
+     */
+    protected $requesStatus = false;
+
+    /**
+     * message of the sent request
+     */
+    protected $message = null;
+
+    /**
+     * define weither a package can throw error on failed request notification
+     */
+    protected $throwable = false;
+
+    /**
+     * The response for guzzle request
+     */
+    protected $response = null;
 
     /**
      * murugo notification types
@@ -131,6 +153,16 @@ class MurugoNotification
     }
 
     /**
+     * define weither a package can throw error on failed request notification
+     */
+    public function throwOnError($throwable = true)
+    {
+        $this->throwable = $throwable;
+
+        return $this;
+    }
+
+    /**
      * define the queue on which the queued notification will be runed on
      */
     public function onQueue($queueName)
@@ -150,6 +182,30 @@ class MurugoNotification
         $this->sendAt = $sendAt;
 
         return $this;
+    }
+
+    /**
+     * check weither the request has been successfully done
+     */
+    public function isOk()
+    {
+        return $this->requesStatus;
+    }
+
+    /**
+     * get the response of the guzzle request
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
+
+    /**
+     * return the message of request depending on request status
+     */
+    public function getMessage()
+    {
+        return $this->message;
     }
     
     /**
@@ -175,9 +231,21 @@ class MurugoNotification
      */
     private function sendDirectly($url, $requestData)
     {
-        return $this->httpClient->request('POST', $url, [
+        $this->response = $this->caller('sendRequest', $url, $requestData);
+
+        return $this;
+    }
+
+    /**
+     * send a request to notifocation server 
+     */
+    private function sendRequest($url, $requestData)
+    {
+        $response =  $this->httpClient->request('POST', $url, [
             'form_params' => $requestData
         ]);
+
+        return json_decode($response->getBody()->getContents());
     }
 
     /**
@@ -188,6 +256,8 @@ class MurugoNotification
         SendMurugoNoficiationAfter::dispatch($url, $requestData)
             ->delay(Carbon::now()->addSeconds($this->sendAt))
             ->onQueue($this->onQueue);
+
+        return $this;
     }
 
     /**
@@ -239,14 +309,75 @@ class MurugoNotification
      */
     private function removeDuplicateWords ($myString) 
     {
-
         if (! $myString) return null;
 
         return preg_replace('/\b(\S+)(?:\s+\1\b)+/i', '$1', $myString);
     }
 
 
+    /**
+     * a helper to execute a given method that send guzzle request and throw error in case it occurs
+     */
+    private function caller($methodName, $methodParam1 = null, $methodParam2 = null, $methodParam3 = null)
+    {
+        try { 
+            $resp = $this->$methodName(
+                $methodParam1, $methodParam2
+            );
 
+            $this->requesStatus = true;
+
+            $this->message = 'Successfully done';
+
+            return $resp;
+
+        } catch (ClientException $exception) {
+            $this->catchError($exception);
+        } catch (ConnectException $exception) {
+            $this->catchError($exception);
+        } catch (Exception $e) {
+            fireErr($e->getMessage());
+        }
+    }
+
+    /**
+     * this will return an error message when something went wrong with guzzle client
+     */
+    private function catchError($exception)
+    {  
+        $this->requesStatus = false;
+       
+        if ($this->throwable) return $this->throwErr($exception);
+
+        $response = $exception->getResponse();
+
+        if (! $response) return $this->message = $exception->getMessage();
+       
+        $statusCode = $response->getStatusCode();
+        $errorResp = json_decode($response->getBody());
+
+        $this->message = $errorResp->message ?? $errorResp->error ?? $statusCode;
+
+    }
+
+    /**
+     * render an execption
+     */
+    private function throwErr($exception)
+    {
+        $response = $exception->getResponse();
+       
+        if (! $response) return mutifyErr($exception->getMessage());
+
+        $statusCode = $response->getStatusCode();
+        $errorResp = json_decode($response->getBody());
+
+        mutifyErrWith($errorResp->message ?? $errorResp->error ?? $statusCode)
+            ->withStatus($statusCode)
+            ->withData([
+                'hint' => $exception->getMessage()
+            ]);
+    }
 
 
 }

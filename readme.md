@@ -212,3 +212,59 @@ mutifyPusher()
     ])
     ->send();
 ```
+
+### Support laravel queue
+In case you would like to put your notification in queue before sending it, `Mutify` supports also laravel queue, to do that just watch:
+
+```php
+mutifySms()
+    ->setMessage('Your verification code is : 123456')
+    ->setPhoneNumber('+2507845564309')
+    ->queuable() // here i am
+    ->send();
+```
+
+The above code will put your notification in queue and it will use laravel `default` queue.
+
+>But in case you want to specify a queue to which your notification will be sent
+
+```php
+mutifySms()
+    ->setMessage('Your verification code is : 123456')
+    ->setPhoneNumber('+2507845564309')
+    ->queuable()
+    ->onQueue($queueName) // here i am
+    ->send();
+```
+
+### Response handling
+Sometimes you will need to know if really your notifcation was sent and `Mutify` simplify that by providing some methods (`isOk`,  `getResponse`, `getMessage`) that you can call on the notification chain after the `send` method, just watch:
+
+```php
+$notif  = mutifySms()
+            ->setMessage('Your verification code is : 123456')
+            ->setPhoneNumber('+2507845564309')
+            ->queuable()
+            ->onQueue($queueName)
+            ->send();
+
+ // check if the notification was successfully sent
+ $notif->isOk(); // return true or false
+
+ // get the response data of the notification
+ $notif->getResponse();  // return an object
+
+ // get a message of the response depending on its status
+ $notif->getMessage(); // return string : successfully sent
+```
+
+### Testing data that you need to send
+Sometimes you may need to verify data that you need to send before sending it, `Mutify` has a method `test` that you can add on the notification chain then, it is going to  `dump` your data.Just watch.
+
+```php
+mutifySms()
+    ->setMessage('Your verification code is : 123456')
+    ->setPhoneNumber('+2507845564309')
+    ->test() // here i am
+    ->send();
+```
