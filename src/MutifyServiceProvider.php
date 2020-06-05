@@ -27,5 +27,9 @@ class MutifyServiceProvider extends ServiceProvider
         if (file_exists($file = __DIR__ . '/Http/Utility/helpers.php')) {
             require_once $file;
         }
+
+        if (file_exists($file = __DIR__ . '/Http/Utility/mutify_exception_helper.php')) {
+            require_once $file;
+        }
     }
 }
